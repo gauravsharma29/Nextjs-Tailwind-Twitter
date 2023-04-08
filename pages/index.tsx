@@ -1,11 +1,12 @@
 import type { NextPage } from "next";
 import Header from "../components/Header";
+import Form from "../components/Form";
 
 const Home: NextPage = () => {
   return (
     <>
       <Header label="Home" />
-      <p>Content Area as a children</p>
+      <Form placeholder="What's happening?" />
     </>
   );
 };
