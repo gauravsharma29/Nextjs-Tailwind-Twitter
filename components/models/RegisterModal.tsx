@@ -1,8 +1,12 @@
 import React, { useCallback, useState } from "react";
+import { toast } from "react-hot-toast";
+import { signIn } from "next-auth/react";
+
 import useLoginModel from "../../hooks/useLoginModel";
 import useRegisterModel from "../../hooks/useRegisterModel";
 import Input from "../Input";
 import Modal from "../Modal";
+import axios from "axios";
 
 const RegisterModal = () => {
   const loginModel = useLoginModel();
@@ -23,26 +27,43 @@ const RegisterModal = () => {
     loginModel.onOpen();
   }, [isLoading, registerModal, loginModel]);
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     try {
       setIsLoading(true);
-      // TODO: ADD Login and Register
+
+      // pages/api/register.ts
+      await axios.post("/api/register", {
+        email,
+        password,
+        username,
+        name,
+      });
+
+      // to notified user
+      toast.success("Account created.");
+
+      signIn("credentials", {
+        email,
+        password,
+      });
 
       // Now using our zustand store here
       registerModal.onClose();
     } catch (err) {
+      toast.error("Something went wrong");
+
       console.log(err);
     } finally {
       setIsLoading(false);
     }
-  }, [registerModal]);
+  }, [email, password, registerModal, username, name]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
       <Input placeholder="Email" onChange={(e) => setEmail(e.target.value)} disabled={isLoading} value={email} />
       <Input placeholder="Name" onChange={(e) => setName(e.target.value)} disabled={isLoading} value={name} />
       <Input placeholder="UserName" onChange={(e) => setUsername(e.target.value)} disabled={isLoading} value={username} />
-      <Input placeholder="Password" onChange={(e) => setPaswword(e.target.value)} disabled={isLoading} value={password} />
+      <Input placeholder="Password" type="password" onChange={(e) => setPaswword(e.target.value)} disabled={isLoading} value={password} />
     </div>
   );
 
